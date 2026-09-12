@@ -203,43 +203,38 @@
   .reset-btn:hover{background:rgba(255,255,255,0.16);}
   .reset-btn:focus-visible, .star-sprite:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:3px;}
 
-  /* ---------- RULES (겉보기 vs 절대) ---------- */
-  .rules-panel{
+  /* ---------- WORKSHEET (생각해보기) ---------- */
+  .worksheet-panel{
     background:var(--surface);border:1px solid var(--border);
-    border-radius:18px;padding:26px 30px;box-shadow:var(--shadow);max-width:780px;
+    border-radius:18px;padding:6px 30px;box-shadow:var(--shadow);max-width:820px;
   }
-  .rule-row{
-    display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
-    padding:16px 0;border-bottom:1px solid var(--border);
+  .wq-item{padding:24px 0;border-bottom:1px solid var(--border);}
+  .wq-item:last-child{border-bottom:none;}
+  .wq-prompt{
+    display:flex;gap:10px;align-items:baseline;margin:0 0 14px;
+    font-family:'Gowun Dodum',sans-serif;font-weight:700;font-size:18px;color:var(--text);line-height:1.55;
   }
-  .rule-row:last-child{border-bottom:none;padding-bottom:2px;}
-  .rule-row:first-child{padding-top:2px;}
-  .rule-compare{
-    font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:var(--text);
-  }
-  .rule-answer{
-    display:inline-flex;align-items:baseline;gap:10px;
-    font-family:'Gowun Dodum',sans-serif;font-weight:700;font-size:22px;color:var(--text);
-    white-space:nowrap;
-  }
+  .wq-bullet{color:var(--accent-gold);flex-shrink:0;}
+  .wq-blank{border-bottom:1.5px dotted var(--border);height:26px;margin:0 0 14px 24px;}
   .reveal{
-    position:relative;font:inherit;cursor:pointer;vertical-align:baseline;
-    display:inline-flex;align-items:center;justify-content:center;
-    min-width:96px;min-height:38px;padding:5px 18px;
-    border-radius:10px;border:1.5px dashed var(--border);
+    display:block;width:calc(100% - 24px);margin-left:24px;text-align:left;
+    font:inherit;cursor:pointer;
+    padding:12px 18px;border-radius:10px;border:1.5px dashed var(--border);
     background:var(--surface-2);color:var(--text-muted);
-    font-family:'Gowun Dodum',sans-serif;font-size:22px;font-weight:700;
+    font-family:'Gowun Dodum',sans-serif;font-size:15.5px;font-weight:600;
     transition:background .15s ease, border-color .15s ease;
   }
   .reveal:hover{border-color:var(--accent-cyan);}
-  .reveal .reveal-hint{font-size:17px;font-weight:600;}
   .reveal .reveal-answer{display:none;}
   .reveal.revealed{
     background:var(--surface);border-style:solid;border-color:var(--accent-gold);
-    color:var(--accent-gold);cursor:default;
+    color:var(--text);cursor:default;
   }
   .reveal.revealed .reveal-hint{display:none;}
-  .reveal.revealed .reveal-answer{display:inline;}
+  .reveal.revealed .reveal-answer{
+    display:block;font-weight:700;font-size:16px;line-height:1.65;
+  }
+  .reveal.revealed .reveal-answer b{color:var(--accent-gold);}
   .reveal:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px;}
 
   footer{color:var(--text-muted);font-size:14px;border-top:1px solid var(--border);padding-top:20px;}
@@ -250,8 +245,7 @@
     .scene-hint{right:16px;bottom:56px;font-size:13.5px;}
   }
   @media (max-width:560px){
-    .rule-row{flex-direction:column;align-items:flex-start;gap:10px;}
-    .reveal{width:100%;}
+    .wq-blank,.reveal{margin-left:0;width:100%;}
   }
 </style>
 </head>
@@ -286,40 +280,34 @@
     </div>
   </section>
 
-  <section class="rules-section">
+  <section class="worksheet-section">
     <div class="section-head">
-      <h2>별의 등급과 거리</h2>
+      <h2>생각해보기</h2>
     </div>
-    <div class="rules-panel">
-      <div class="rule-row">
-        <span class="rule-compare">겉보기등급 = 절대등급</span>
-        <span class="rule-answer">
-          <span class="answer-visible">거리가 10&nbsp;pc와</span>
-          <button class="reveal" type="button" aria-expanded="false">
-            <span class="reveal-hint">?</span>
-            <span class="reveal-answer">같다</span>
-          </button>
-        </span>
+    <div class="worksheet-panel">
+      <div class="wq-item">
+        <p class="wq-prompt"><span class="wq-bullet">●</span> 10&nbsp;pc보다 멀리 있는 별을 찾고, 그 별의 겉보기 등급과 절대 등급을 비교해 보자.</p>
+        <div class="wq-blank"></div>
+        <button class="reveal" type="button" aria-expanded="false">
+          <span class="reveal-hint">정답 보기</span>
+          <span class="reveal-answer">예시: 베텔게우스는 지구로부터 <b>197&nbsp;pc</b> 떨어져 있어 10&nbsp;pc보다 훨씬 멀다. 겉보기등급(<b>0.5</b>)이 절대등급(<b>−5.1</b>)보다 크다. 즉, 실제로 가진 밝기(절대등급)보다 더 어둡게 보인다.</span>
+        </button>
       </div>
-      <div class="rule-row">
-        <span class="rule-compare">겉보기등급 &lt; 절대등급</span>
-        <span class="rule-answer">
-          <span class="answer-visible">거리가 10&nbsp;pc보다</span>
-          <button class="reveal" type="button" aria-expanded="false">
-            <span class="reveal-hint">?</span>
-            <span class="reveal-answer">작다</span>
-          </button>
-        </span>
+      <div class="wq-item">
+        <p class="wq-prompt"><span class="wq-bullet">●</span> 10&nbsp;pc보다 가까이 있는 별을 찾고, 그 별의 겉보기 등급과 절대 등급을 비교해 보자.</p>
+        <div class="wq-blank"></div>
+        <button class="reveal" type="button" aria-expanded="false">
+          <span class="reveal-hint">정답 보기</span>
+          <span class="reveal-answer">예시: 시리우스는 지구로부터 <b>2.64&nbsp;pc</b> 떨어져 있어 10&nbsp;pc보다 훨씬 가깝다. 겉보기등급(<b>−1.5</b>)이 절대등급(<b>+1.4</b>)보다 작다. 즉, 실제로 가진 밝기(절대등급)보다 더 밝게 보인다.</span>
+        </button>
       </div>
-      <div class="rule-row">
-        <span class="rule-compare">겉보기등급 &gt; 절대등급</span>
-        <span class="rule-answer">
-          <span class="answer-visible">거리가 10&nbsp;pc보다</span>
-          <button class="reveal" type="button" aria-expanded="false">
-            <span class="reveal-hint">?</span>
-            <span class="reveal-answer">크다</span>
-          </button>
-        </span>
+      <div class="wq-item">
+        <p class="wq-prompt"><span class="wq-bullet">●</span> 만약 겉보기 등급과 절대 등급이 같은 별이 지구로부터 멀어진다면 이 별의 겉보기 등급과 절대 등급은 어떻게 변하는지 설명해 보자.</p>
+        <div class="wq-blank"></div>
+        <button class="reveal" type="button" aria-expanded="false">
+          <span class="reveal-hint">정답 보기</span>
+          <span class="reveal-answer">겉보기등급과 절대등급이 같다는 것은 이 별이 정확히 <b>10&nbsp;pc</b> 거리에 있다는 뜻이다. 별이 지구로부터 더 멀어지면 실제로 보이는 밝기는 어두워지므로 겉보기등급은 점점 커진다. 반면 절대등급은 별이 원래 가진 고유한 밝기(10&nbsp;pc에 있다고 가정했을 때의 밝기)이므로, 거리가 변해도 절대등급은 변하지 않는다.</span>
+        </button>
       </div>
     </div>
   </section>
