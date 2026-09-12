@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>별의 등급 실험실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f2e8;
+    --surface:#ffffff;
+    --surface-2:#efe8d6;
+    --text:#221f2b;
+    --text-muted:#6b6478;
+    --border:#e0d6bd;
+    --accent-gold:#b8781f;
+    --accent-cyan:#2a7ea6;
+    --shadow: 0 14px 36px -14px rgba(60,40,10,0.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a0c16;
+      --surface:#121524;
+      --surface-2:#1a1e34;
+      --text:#eef0fb;
+      --text-muted:#98a0c4;
+      --border:#2a2f4d;
+      --accent-gold:#ffcf6b;
+      --accent-cyan:#6fd4ff;
+      --shadow: 0 14px 36px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0c16;
+    --surface:#121524;
+    --surface-2:#1a1e34;
+    --text:#eef0fb;
+    --text-muted:#98a0c4;
+    --border:#2a2f4d;
+    --accent-gold:#ffcf6b;
+    --accent-cyan:#6fd4ff;
+    --shadow: 0 14px 36px -14px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Gowun Dodum','Malgun Gothic',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:48px 28px 80px;}
+  h1,h2,h3{font-family:'Gowun Batang',serif;text-wrap:balance;margin:0;}
+  .num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;}
+
+  /* header */
+  .page-header{margin-bottom:40px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-cyan);margin:0 0 10px;font-weight:600;
+  }
+  h1{font-size:clamp(26px,3.2vw,38px);font-weight:700;margin-bottom:14px;}
+  .lede{max-width:700px;color:var(--text-muted);font-size:18px;margin-bottom:22px;}
+  .formula-card{
+    display:inline-flex;align-items:baseline;gap:10px;
+    background:var(--surface-2);border:1px solid var(--border);
+    border-radius:12px;padding:14px 22px;
+    font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;
+  }
+  .formula-card span{font-family:'Gowun Dodum',sans-serif;font-size:14.5px;font-weight:400;color:var(--text-muted);}
+  .formula-card sub{font-size:.6em;}
+
+  section{margin-bottom:40px;}
+  .section-head h2{font-size:24px;margin-bottom:8px;}
+  .section-note{color:var(--text-muted);font-size:17px;max-width:780px;margin:0 0 22px;}
+
+  /* ---------- SCENE (night sky drag) ---------- */
+  .scene-panel{
+    position:relative;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    border:1px solid #05060c;
+    aspect-ratio:16/9.5;
+    background:radial-gradient(ellipse at 18% 40%, #182047 0%, #0a0d1e 55%, #05060f 100%);
+  }
+  #starfield{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+  .pc-arc{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:2px dashed rgba(255,255,255,0.4);
+    pointer-events:none;
+    transition:border-color .18s ease, box-shadow .18s ease;
+  }
+  .pc-arc.arc-active{
+    border-color:rgba(255,207,107,0.9);
+    box-shadow:0 0 30px 6px rgba(255,207,107,0.25);
+  }
+  .pc-arc-label{
+    position:absolute;transform:translate(-50%,-50%);
+    font-family:'JetBrains Mono',monospace;font-size:15.5px;font-weight:600;
+    color:rgba(255,255,255,0.85);
+    background:rgba(5,7,16,0.7);
+    padding:4px 12px;border-radius:20px;
+    border:1px solid rgba(255,255,255,0.25);
+    letter-spacing:.03em;white-space:nowrap;
+    pointer-events:none;
+  }
+
+  .earth{
+    position:absolute;width:40px;height:40px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;z-index:5;pointer-events:none;
+    background:
+      radial-gradient(circle at 32% 30%, #bff0ff, #4fa9e0 38%, #1c5fa0 62%, #0d2f57 100%);
+    box-shadow:0 0 16px 3px rgba(90,170,255,0.55), inset -6px -6px 10px rgba(0,0,0,0.4);
+  }
+  .earth::after{
+    content:"";position:absolute;inset:0;border-radius:50%;
+    background:
+      radial-gradient(circle at 65% 70%, rgba(120,200,110,0.55) 0 14%, transparent 15%),
+      radial-gradient(circle at 30% 68%, rgba(120,200,110,0.5) 0 10%, transparent 11%),
+      radial-gradient(circle at 55% 25%, rgba(120,200,110,0.45) 0 12%, transparent 13%);
+  }
+  .earth-label{
+    position:absolute;top:44px;left:50%;transform:translateX(-50%);
+    font-size:14px;color:rgba(255,255,255,0.7);white-space:nowrap;
+  }
+
+  .star-sprite{
+    --imgbox-base:150px;
+    position:absolute;width:190px;
+    transform:translate(-50%,-50%);
+    display:flex;flex-direction:column;align-items:center;gap:7px;
+    z-index:8;touch-action:none;cursor:grab;
+    user-select:none;-webkit-user-select:none;
+  }
+  .star-sprite.dragging{cursor:grabbing;z-index:30;}
+  .star-sprite.snap-anim{transition:left .38s cubic-bezier(.2,.8,.3,1.1), top .38s cubic-bezier(.2,.8,.3,1.1);}
+  .sprite-imgbox{
+    position:relative;width:var(--imgbox-base);height:var(--imgbox-base);
+    -webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%, #000 58%, transparent 88%);
+    mask-image:radial-gradient(ellipse 46% 46% at 50% 50%, #000 58%, transparent 88%);
+    filter:drop-shadow(0 2px 10px rgba(0,0,0,0.5));
+    transition:filter .25s ease, width .35s cubic-bezier(.2,.8,.3,1.2), height .35s cubic-bezier(.2,.8,.3,1.2);
+  }
+  .star-sprite.at-line .sprite-imgbox{
+    filter:drop-shadow(0 0 22px rgba(255,220,150,0.6));
+    width:calc(var(--imgbox-base) * var(--zoom, 1.4));
+    height:calc(var(--imgbox-base) * var(--zoom, 1.4));
+  }
+  .sprite-imgbox img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+    transition:opacity .35s ease;
+    pointer-events:none;
+  }
+  .img-10pc{opacity:0;}
+  .star-sprite.at-line .img-apparent{opacity:0;}
+  .star-sprite.at-line .img-10pc{opacity:1;}
+
+  .sprite-tag{
+    text-align:center;line-height:1.3;
+    background:rgba(6,8,18,0.72);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:10px;padding:6px 14px;
+    pointer-events:none;
+  }
+  .sprite-tag b{display:block;font-size:17px;color:#f4efe2;font-weight:700;}
+  .mag-value{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:14.5px;
+    color:#ffcf6b;
+  }
+  .star-sprite.at-line .mag-value{color:#8fe0ff;}
+
+  .scene-hint{
+    position:absolute;left:18px;bottom:16px;right:150px;
+    font-size:16px;color:rgba(255,255,255,0.68);
+    pointer-events:none;
+  }
+  .reset-btn{
+    position:absolute;right:16px;bottom:16px;
+    font-family:'Gowun Dodum',sans-serif;font-size:15px;font-weight:600;
+    background:rgba(255,255,255,0.08);color:#f4efe2;
+    border:1px solid rgba(255,255,255,0.25);border-radius:20px;
+    padding:8px 18px;cursor:pointer;backdrop-filter:blur(4px);
+  }
+  .reset-btn:hover{background:rgba(255,255,255,0.16);}
+  .reset-btn:focus-visible, .star-sprite:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:3px;}
+
+  footer{color:var(--text-muted);font-size:14px;border-top:1px solid var(--border);padding-top:20px;}
+
+  @media (max-width:820px){
+    .star-sprite{--imgbox-base:100px;width:130px;}
+    .sprite-tag b{font-size:14px;}
+    .scene-hint{right:16px;bottom:56px;font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-header">
+    <p class="eyebrow">별의 등급 실험실</p>
+    <h1>겉보기등급과 절대등급, 손으로 옮겨보며 이해하기</h1>
+    <p class="lede">같은 별이라도 지구에서 보이는 밝기(겉보기등급)는 거리마다 다릅니다. 모든 별을 똑같이 10&nbsp;pc 떨어뜨려 놓았을 때의 밝기가 바로 절대등급이에요.</p>
+    <div class="formula-card">m − M = 5 log<sub>10</sub> d − 5 <span>m: 겉보기등급, M: 절대등급, d: 거리(pc)</span></div>
+  </header>
+
+  <section class="scene-section">
+    <div class="section-head">
+      <h2>별을 10&nbsp;pc 자리로 옮겨보기</h2>
+    </div>
+    <p class="section-note">지구를 중심으로 10&nbsp;pc 거리를 나타내는 점선 원이 있어요. 태양과 시리우스는 실제로 10&nbsp;pc보다 가까운 별이라 원 안에서만, 나머지 별은 10&nbsp;pc보다 먼 별이라 원 밖에서만 움직일 수 있습니다. 점선 위에 정확히 놓으면 모두 같은 거리(10&nbsp;pc)에 있을 때의 진짜 밝기인 절대등급으로 바뀌고, 선을 벗어나 놓으면 원래 자리로 되돌아가요.</p>
+
+    <div class="scene-panel" id="scene">
+      <canvas id="starfield"></canvas>
+      <div class="pc-arc" id="pcArc"></div>
+      <span class="pc-arc-label" id="pcArcLabel">10 pc</span>
+      <div class="earth" id="earth"><span class="earth-label">지구</span></div>
+      <div class="scene-hint">태양·별을 드래그해서 점선 원 위에 정확히 놓아보세요 · 원을 넘어가거나 선을 벗어나면 원래대로 돌아와요</div>
+      <button class="reset-btn" id="resetBtn" type="button">처음으로</button>
+    </div>
+  </section>
+
+  <footer>
+    별 이미지 및 거리·등급 자료: 사용자 제공 자료(태양 · 시리우스 · 베텔게우스 · 데네브 · 북극성) · 크기와 밝기는 등급을 기준으로 상대적으로 표현되었습니다.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var EARTH_POS = {x:9, y:52};
+  var RADIUS_FRACTION = 0.34;
+
+  var STARS = [
+    { id:"sun",        name:"태양",     distanceLabel:"0.000005 pc (1 AU)", apparent:-26.8, absolute:4.8,  pos:{x:15, y:36}, zoom:0.55, zone:"near" },
+    { id:"sirius",     name:"시리우스", distanceLabel:"2.64 pc",            apparent:-1.5,  absolute:1.4,  pos:{x:20, y:70}, zoom:0.9,  zone:"near" },
+    { id:"deneb",      name:"데네브",   distanceLabel:"802 pc",             apparent:1.3,   absolute:-8.7, pos:{x:89, y:28}, zoom:2.0,  zone:"far"  },
+    { id:"betelgeuse", name:"베텔게우스", distanceLabel:"197 pc",           apparent:0.5,   absolute:-5.1, pos:{x:60, y:66}, zoom:1.6,  zone:"far"  },
+    { id:"polaris",    name:"북극성",   distanceLabel:"133 pc",             apparent:2.1,   absolute:-3.7, pos:{x:89, y:80}, zoom:1.3,  zone:"far"  }
+  ];
+
+  /* ---------- starfield twinkle ---------- */
+  var canvas = document.getElementById("starfield");
+  var ctx = canvas.getContext("2d");
+  var scenePanel = document.getElementById("scene");
+  var bgStars = [];
+
+  function resizeCanvas(){
+    var rect = scenePanel.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    if(bgStars.length === 0){
+      var count = Math.floor((rect.width*rect.height)/3000);
+      for(var i=0;i<count;i++){
+        bgStars.push({
+          x:Math.random()*rect.width,
+          y:Math.random()*rect.height,
+          r:Math.random()*1.3+0.3,
+          phase:Math.random()*Math.PI*2,
+          speed:0.6+Math.random()*1.2
+        });
+      }
+    }
+  }
+
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function drawStars(t){
+    var rect = scenePanel.getBoundingClientRect();
+    ctx.clearRect(0,0,rect.width,rect.height);
+    for(var i=0;i<bgStars.length;i++){
+      var s = bgStars[i];
+      var tw = reduceMotion ? 0.8 : 0.55 + 0.45*Math.sin(t*0.001*s.speed + s.phase);
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,"+(0.25+0.65*tw)+")";
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    if(!reduceMotion){ requestAnimationFrame(drawStars); }
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+  requestAnimationFrame(drawStars);
+  if(reduceMotion){ drawStars(0); }
+
+  /* ---------- static layout ---------- */
+  var scene = document.getElementById("scene");
+  var pcArc = document.getElementById("pcArc");
+  var pcArcLabel = document.getElementById("pcArcLabel");
+
+  var earthEl = document.getElementById("earth");
+  earthEl.style.left = EARTH_POS.x + "%";
+  earthEl.style.top = EARTH_POS.y + "%";
+
+  function getGeo(){
+    var rect = scene.getBoundingClientRect();
+    return {
+      w: rect.width, h: rect.height,
+      earth: { x: rect.width * EARTH_POS.x / 100, y: rect.height * EARTH_POS.y / 100 },
+      radius: rect.width * RADIUS_FRACTION,
+      tol: Math.max(10, rect.width * 0.032)
+    };
+  }
+
+  function layoutArc(){
+    var g = getGeo();
+    pcArc.style.width = (g.radius*2) + "px";
+    pcArc.style.height = (g.radius*2) + "px";
+    pcArc.style.left = g.earth.x + "px";
+    pcArc.style.top = g.earth.y + "px";
+    var ang = -55 * Math.PI/180;
+    pcArcLabel.style.left = (g.earth.x + g.radius*Math.cos(ang)) + "px";
+    pcArcLabel.style.top = (g.earth.y + g.radius*Math.sin(ang)) + "px";
+  }
+  window.addEventListener("resize", layoutArc);
+  window.addEventListener("load", layoutArc);
+  layoutArc();
+
+  /* ---------- drag sprites ---------- */
+  function pointToPx(clientX, clientY){
+    var rect = scene.getBoundingClientRect();
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function clampToZone(px, zone, g){
+    var dx = px.x - g.earth.x, dy = px.y - g.earth.y;
+    var dist = Math.hypot(dx, dy);
+    if(dist < 1e-6) return px;
+    if(zone === "near" && dist > g.radius){
+      var k = g.radius / dist;
+      return { x: g.earth.x + dx*k, y: g.earth.y + dy*k };
+    }
+    if(zone === "far" && dist < g.radius){
+      var k2 = g.radius / dist;
+      return { x: g.earth.x + dx*k2, y: g.earth.y + dy*k2 };
+    }
+    return px;
+  }
+
+  function fmtMag(v){
+    return (v>0? "+":"") + v.toFixed(1);
+  }
+
+  function createSprite(star){
+    var el = document.createElement("div");
+    el.className = "star-sprite";
+    el.tabIndex = 0;
+    el.style.left = star.pos.x + "%";
+    el.style.top = star.pos.y + "%";
+    el.style.setProperty("--zoom", star.zoom);
+    el.dataset.state = "free";
+    el.innerHTML =
+      '<div class="sprite-imgbox">'+
+        '<img class="img-apparent" src="images/'+star.id+'_apparent.png" alt="'+star.name+' 원래 모습">'+
+        '<img class="img-10pc" src="images/'+star.id+'_10pc.png" alt="'+star.name+' 10pc 모습">'+
+      '</div>'+
+      '<div class="sprite-tag"><b>'+star.name+'</b><span class="mag-value">겉보기등급 '+fmtMag(star.apparent)+'</span></div>';
+    scene.appendChild(el);
+    return el;
+  }
+
+  function updateVisual(el, star){
+    var atLine = el.dataset.state === "line";
+    el.classList.toggle("at-line", atLine);
+    el.querySelector(".mag-value").textContent = atLine
+      ? "절대등급 " + fmtMag(star.absolute)
+      : "겉보기등급 " + fmtMag(star.apparent);
+  }
+
+  function snapHome(el, star){
+    el.classList.add("snap-anim");
+    el.style.left = star.pos.x + "%";
+    el.style.top = star.pos.y + "%";
+    el.dataset.state = "free";
+    updateVisual(el, star);
+    setTimeout(function(){ el.classList.remove("snap-anim"); }, 400);
+  }
+
+  function attachDrag(el, star){
+    var dragging = false;
+    var offset = {x:0, y:0};
+
+    function start(e){
+      dragging = true;
+      el.classList.add("dragging");
+      el.classList.remove("snap-anim");
+      el.setPointerCapture(e.pointerId);
+      var g = getGeo();
+      var p = pointToPx(e.clientX, e.clientY);
+      var cur = { x: parseFloat(el.style.left)/100*g.w, y: parseFloat(el.style.top)/100*g.h };
+      offset.x = p.x - cur.x;
+      offset.y = p.y - cur.y;
+      e.preventDefault();
+    }
+    function move(e){
+      if(!dragging) return;
+      var g = getGeo();
+      var p = pointToPx(e.clientX, e.clientY);
+      var margin = 24;
+      var raw = {
+        x: Math.min(g.w-margin, Math.max(margin, p.x - offset.x)),
+        y: Math.min(g.h-margin, Math.max(margin, p.y - offset.y))
+      };
+      var clamped = clampToZone(raw, star.zone, g);
+      el.style.left = (clamped.x/g.w*100) + "%";
+      el.style.top = (clamped.y/g.h*100) + "%";
+      var distDiff = Math.abs(Math.hypot(clamped.x-g.earth.x, clamped.y-g.earth.y) - g.radius);
+      pcArc.classList.toggle("arc-active", distDiff <= g.tol);
+    }
+    function end(e){
+      if(!dragging) return;
+      dragging = false;
+      el.classList.remove("dragging");
+      pcArc.classList.remove("arc-active");
+      var g = getGeo();
+      var cur = { x: parseFloat(el.style.left)/100*g.w, y: parseFloat(el.style.top)/100*g.h };
+      var dist = Math.hypot(cur.x-g.earth.x, cur.y-g.earth.y);
+      el.classList.add("snap-anim");
+      if(Math.abs(dist - g.radius) <= g.tol){
+        var k = g.radius / (dist || 1);
+        var snapped = { x: g.earth.x + (cur.x-g.earth.x)*k, y: g.earth.y + (cur.y-g.earth.y)*k };
+        el.style.left = (snapped.x/g.w*100) + "%";
+        el.style.top = (snapped.y/g.h*100) + "%";
+        el.dataset.state = "line";
+        updateVisual(el, star);
+        setTimeout(function(){ el.classList.remove("snap-anim"); }, 400);
+      } else {
+        snapHome(el, star);
+      }
+    }
+
+    el.addEventListener("pointerdown", start);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+
+    el.addEventListener("keydown", function(e){
+      if(e.key !== "Enter" && e.key !== " ") return;
+      var g = getGeo();
+      if(el.dataset.state === "line"){
+        snapHome(el, star);
+      } else {
+        var homePx = { x: star.pos.x/100*g.w, y: star.pos.y/100*g.h };
+        var dx = homePx.x-g.earth.x, dy = homePx.y-g.earth.y;
+        var dist = Math.hypot(dx,dy) || 1;
+        var k = g.radius/dist;
+        var snapped = { x: g.earth.x+dx*k, y: g.earth.y+dy*k };
+        el.classList.add("snap-anim");
+        el.style.left = (snapped.x/g.w*100) + "%";
+        el.style.top = (snapped.y/g.h*100) + "%";
+        el.dataset.state = "line";
+        updateVisual(el, star);
+        setTimeout(function(){ el.classList.remove("snap-anim"); }, 400);
+      }
+      e.preventDefault();
+    });
+  }
+
+  var sprites = STARS.map(function(star){
+    var el = createSprite(star);
+    attachDrag(el, star);
+    return {el:el, star:star};
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    sprites.forEach(function(s){ snapHome(s.el, s.star); });
+  });
+
+})();
+</script>
+</body>
+</html>
