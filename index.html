@@ -217,20 +217,26 @@
   .rule-compare{
     font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:var(--text);
   }
+  .rule-answer{
+    display:inline-flex;align-items:baseline;gap:10px;
+    font-family:'Gowun Dodum',sans-serif;font-weight:700;font-size:22px;color:var(--text);
+    white-space:nowrap;
+  }
   .reveal{
-    position:relative;font:inherit;cursor:pointer;
+    position:relative;font:inherit;cursor:pointer;vertical-align:baseline;
     display:inline-flex;align-items:center;justify-content:center;
-    min-width:210px;min-height:40px;padding:8px 18px;
+    min-width:96px;min-height:38px;padding:5px 18px;
     border-radius:10px;border:1.5px dashed var(--border);
     background:var(--surface-2);color:var(--text-muted);
-    font-family:'Gowun Dodum',sans-serif;font-size:15px;font-weight:600;
+    font-family:'Gowun Dodum',sans-serif;font-size:22px;font-weight:700;
     transition:background .15s ease, border-color .15s ease;
   }
   .reveal:hover{border-color:var(--accent-cyan);}
+  .reveal .reveal-hint{font-size:17px;font-weight:600;}
   .reveal .reveal-answer{display:none;}
   .reveal.revealed{
     background:var(--surface);border-style:solid;border-color:var(--accent-gold);
-    color:var(--accent-gold);font-weight:700;cursor:default;
+    color:var(--accent-gold);cursor:default;
   }
   .reveal.revealed .reveal-hint{display:none;}
   .reveal.revealed .reveal-answer{display:inline;}
@@ -287,24 +293,33 @@
     <div class="rules-panel">
       <div class="rule-row">
         <span class="rule-compare">겉보기등급 = 절대등급</span>
-        <button class="reveal" type="button" aria-expanded="false">
-          <span class="reveal-hint">클릭해서 확인</span>
-          <span class="reveal-answer">거리가 10&nbsp;pc와 같다</span>
-        </button>
+        <span class="rule-answer">
+          <span class="answer-visible">거리가 10&nbsp;pc와</span>
+          <button class="reveal" type="button" aria-expanded="false">
+            <span class="reveal-hint">?</span>
+            <span class="reveal-answer">같다</span>
+          </button>
+        </span>
       </div>
       <div class="rule-row">
         <span class="rule-compare">겉보기등급 &lt; 절대등급</span>
-        <button class="reveal" type="button" aria-expanded="false">
-          <span class="reveal-hint">클릭해서 확인</span>
-          <span class="reveal-answer">거리가 10&nbsp;pc보다 작다</span>
-        </button>
+        <span class="rule-answer">
+          <span class="answer-visible">거리가 10&nbsp;pc보다</span>
+          <button class="reveal" type="button" aria-expanded="false">
+            <span class="reveal-hint">?</span>
+            <span class="reveal-answer">작다</span>
+          </button>
+        </span>
       </div>
       <div class="rule-row">
         <span class="rule-compare">겉보기등급 &gt; 절대등급</span>
-        <button class="reveal" type="button" aria-expanded="false">
-          <span class="reveal-hint">클릭해서 확인</span>
-          <span class="reveal-answer">거리가 10&nbsp;pc보다 크다</span>
-        </button>
+        <span class="rule-answer">
+          <span class="answer-visible">거리가 10&nbsp;pc보다</span>
+          <button class="reveal" type="button" aria-expanded="false">
+            <span class="reveal-hint">?</span>
+            <span class="reveal-answer">크다</span>
+          </button>
+        </span>
       </div>
     </div>
   </section>
